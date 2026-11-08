@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(nanoid())
+  username  String   @unique  @map("name_user")
+  password  String
+
+  products  Product[]
+  categories Category[]
+  @@map("tbl_user")
+  }
+
+  model Product {
+  userId     String    @map("user_id")
+  id          String   @id @default(nanoid())
+  nameProduct        String @map("name_product")
+  codeProduct        String @map("code_product")
+
+
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  categoryId  String   @map("category_id")
+
+
+  user        User     @relation(fields: [userId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+  productStock StockProduct[]
+  photoProduct photoProduct[]
+
+  @@map("tbl_product")
+}
+
+model photoProduct {
+  id          String   @id @default(nanoid())
+  productId   String   @map("product_id")
+  photoUrl    String   @map("photo_url")
+
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@map("tbl_photo_product")
+}
+
+model Category {
+  id       String   @id @default(nanoid())
+  name      String @unique
+  createdAt DateTime @default(now())  @map("created_at")
+  updatedAt DateTime @updatedAt       @map("updated_at")
+  userId   String   @map("user_id")
+
+  user User @relation(fields: [userId], references: [id])
+
+  products Product[]
+  @@map("tbl_category")
+}
+
+model StockProduct {
+  id          String   @id @default(nanoid())
+  productId   String   @map("product_id")
+  quantity    Int
+  
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@map("tbl_stock_product")
+}
